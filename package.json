@@ -1,7 +1,5 @@
 {
-  "repository": {
-    "url": "git+https://github.com/alexmanuylenko/webxr.git"
-  },
+  "repository": "#",
   "license": "MIT",
   "scripts": {
     "build": "webpack --config ./bundler/webpack.prod.js",

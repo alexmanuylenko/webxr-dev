@@ -9,7 +9,6 @@ module.exports = {
     {
         filename: 'bundle.[contenthash].js',
         path: path.resolve(__dirname, '../dist'),
-        publicPath: "/webxr-site/"
     },
     devtool: 'source-map',
     plugins:
