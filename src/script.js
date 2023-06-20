@@ -46,7 +46,7 @@ async function init() {
   const loader = new GLTFLoader();
 
   //let fire;
-  loader.load("https://alexmanuylenko.github.io/webxr/fire_scene.glb", function(gltf) {
+  loader.load("https://alexmanuylenko.github.io/webxr-assets/fire_scene.glb", function(gltf) {
     fire = gltf.scene;
     // fire.traverse( function (child) {
     //   if (child.isMesh) {
