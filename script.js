@@ -1,11 +1,12 @@
 import './style.css'
-// import * as THREE from 'https://unpkg.com/three/build/three.module.js';
-// import { ARButton } from 'https://unpkg.com/three/examples/jsm/webxr/ARButton.js';
-// import * as GLTFLoader from 'https://unpkg.com/three@0.126.0/examples/js/loaders/GLTFLoader.js'
-// import { GLTFLoader } from 'https://unpkg.com/three@0.126.0/examples/js/loaders/GLTFLoader.js'
-import * as THREE from 'three'
-import { ARButton } from 'three/examples/jsm/webxr/ARButton.js';
-import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
+
+import * as THREE from 'https://unpkg.com/three/build/three.module.js';
+import { ARButton } from 'https://unpkg.com/three/examples/jsm/webxr/ARButton.js';
+import { GLTFLoader } from 'https://unpkg.com/three@0.126.0/examples/jsm/loaders/GLTFLoader.js'
+
+// import * as THREE from 'three'
+// import { ARButton } from 'three/examples/jsm/webxr/ARButton.js';
+// import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
 
 let camera, canvas, scene, renderer;
 let fire;
