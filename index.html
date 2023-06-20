@@ -1,16 +1,117 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    
-    <title>WebXR image tracking</title>
-    <script src="//cdn.jsdelivr.net/npm/eruda"></script>
-    <script src="script.js" type="module"> </script>
-</head>
-<body>
-    <canvas class="webgl"></canvas>
-    <img id='img' src='https://raw.githubusercontent.com/alexmanuylenko/webxr-assets/master/fire_marker.jpg' alt='fire' style='display: none;'/>
-    <div id='console-ui'></div>
-</body>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+		<title>WebXR image tracking</title>
+	</head>
+	<body>
+		<img id='img' src='https://raw.githubusercontent.com/alexmanuylenko/webxr-assets/master/fire_marker.jpg' alt='fire' style='display: none;'/>
+		<script type="module">
+            import * as THREE from 'https://unpkg.com/three/build/three.module.js';
+			import { ARButton } from 'https://unpkg.com/three/examples/jsm/webxr/ARButton.js';
+			import { GLTFLoader } from 'https://unpkg.com/three@0.126.0/examples/jsm/loaders/GLTFLoader.js'
+
+			let container;
+			let camera, canvas, scene, renderer;
+			let fire;
+
+			async function init() {
+				container = document.createElement( 'div' );
+				document.body.appendChild( container );
+		
+  				scene = new THREE.Scene();
+
+  				camera = new THREE.PerspectiveCamera(70,
+    				window.innerWidth / window.innerHeight,
+    				0.01,
+    				40
+  				);
+
+  				renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+  				renderer.setSize(window.innerWidth, window.innerHeight);
+  				renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
+  				renderer.xr.enabled = true;
+				container.appendChild( renderer.domElement );
+
+  				const light = new THREE.HemisphereLight(0xffffff, 0xbbbbff, 1);
+  				light.position.set(0.5, 1, 0.25);
+  				scene.add(light);
+
+				const loader = new GLTFLoader();
+
+				loader.load("https://alexmanuylenko.github.io/webxr-assets/fire_scene.glb", function(gltf) {
+    				fire = gltf.scene;
+    				fire.translateY(-0.25);
+    				fire.translateZ(-0.45);
+    				fire.scale.set(0.025, 0.025, 0.025);
+    				fire.visible = false;
+    				scene.add(fire);
+  				});
+
+  				// setup the image target
+  				const img = document.getElementById('img');
+  				const imgBitmap = await createImageBitmap(img);
+
+  				//more on image-tracking feature: https://github.com/immersive-web/marker-tracking/blob/main/explainer.md
+  				const button = ARButton.createButton(renderer, {
+    				requiredFeatures: ['image-tracking'], // notice a new required feature
+    				trackedImages: [
+      					{
+        					image: imgBitmap, // tell webxr this is the image target we want to track
+        					widthInMeters: 0.7 // in meters what the size of the PRINTED image in the real world
+      					}
+    				],
+  				});
+  				document.body.appendChild(button);
+
+  				window.addEventListener("resize", onWindowResize, false);
+			}
+
+			function onWindowResize() {
+  				camera.aspect = window.innerWidth / window.innerHeight;
+  				camera.updateProjectionMatrix();
+  				renderer.setSize(window.innerWidth, window.innerHeight);
+  				renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
+			}
+
+			function animate() {
+  				renderer.setAnimationLoop(render);
+			}
+
+			function render(timestamp, frame) {
+				if (frame) {
+    				const results = frame.getImageTrackingResults(); //checking if there are any images we track
+
+    				//if we have more than one image the results are an array 
+    				for (const result of results) {
+      					// The result's index is the image's position in the trackedImages array specified at session creation
+      					const imageIndex = result.index;
+
+      					// Get the pose of the image relative to a reference space.
+      					const referenceSpace = renderer.xr.getReferenceSpace();
+      					const pose = frame.getPose(result.imageSpace, referenceSpace);
+
+      					//checking the state of the tracking
+      					const state = result.trackingState;
+
+						if (state == "tracked") {
+        					if (!fire.visible) {
+          						fire.visible = true;
+          						// update the cone mesh when the image target is found
+          						fire.matrix.fromArray(pose.transform.matrix);
+        					}
+      					} else if (state == "emulated") {
+        					//fire.visible = false;
+      					}
+    				}
+  				}
+  				renderer.render(scene, camera);
+			}
+
+			init();
+			animate();
+
+		</script>		
+	</body>
 </html>
